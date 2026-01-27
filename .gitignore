@@ -1,0 +1,19 @@
+# ESP-IDF build artifacts
+build/
+managed_components/
+sdkconfig.old
+
+# IDE / editor files
+.vscode/
+*.code-workspace
+.project
+.cproject
+.settings/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp

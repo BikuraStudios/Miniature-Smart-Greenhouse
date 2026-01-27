@@ -2,13 +2,14 @@
 
 ESP32-based environmental monitoring and control system for a small enclosed terrarium / greenhouse. Designed to help maintain plant health in indoor environments (including homes with pets). Built using off-the-shelf components and simple, explicit state machines. Safety defaults are configured such that the system fails dark.
 
+![early implementation of lights and fans](Docs/Miniature-Smart-Greenhouse_01.png)
 ---
 
 ## Status
 
 Early development / hardware bring-up phase (Jan 2026).
 
-See `TODO.md` for live progress.
+See  [`TODO.md`](Docs/TODO.md) for live progress.
 
 ---
 
@@ -64,6 +65,7 @@ See `TODO.md` for live progress.
 
 Wild Camellia (*Camellia japonica* var. *japonica*)
 
+![camellia japonica var. japonica / image courtesy of Wikipedia](Docs/Camellia_japonica.png)
 > All thresholds are compile-time definitions and are expected to change.
 
 - Ideal air temperature: 10–22 °C
@@ -100,6 +102,11 @@ Built using readily available, off-the-shelf components.
 - USB soil heating pad (MOSFET + thermal fuse)
 - Status LED (GPIO-driven)
 
+## Current Implementation
+
+- Current implementation uses breadboard and is unenclosed while testing
+- Enclosure / more permanent perfboard set as v2 feature
+  ![breadboard and sensors on top of main tank](Docs/Miniature-Smart-Greenhouse_02.png)
 ---
 
 ## Software Structure
@@ -140,7 +147,7 @@ delay / idle
 
 ## Further Reading
 
-- `PARTS_LIST.md` — hardware components
-- `SCHEMATIC.pdf` — wiring and layout details
-- `DEVELOPMENT_NOTES.md` — troubleshooting history / future notes
+- [`PARTS_LIST.md`](Docs/PARTS_LIST.md) — hardware components 
+- [`SCHEMATIC.pdf`](Docs/SCHEMATIC.pdf) — wiring and layout details
+- [`DEVELOPMENT_NOTES.md`](Docs/DEVELOPMENT_NOTES.md) — troubleshooting history / future notes
 

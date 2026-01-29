@@ -1,6 +1,6 @@
 ﻿# Miniature Smart Greenhouse
 
-[`日本語のREADMEはこちら。`](Docs/README_JP.md)
+[`日本語のREADMEはこちら。`](docs/README_JP.md)
 
 ESP32-based environmental monitoring and control system for a small enclosed terrarium / greenhouse. Designed to help maintain plant health in indoor environments (including homes with pets). Built using off-the-shelf components and simple, explicit state machines. Safety defaults are configured such that the system fails dark.
 
@@ -11,7 +11,7 @@ ESP32-based environmental monitoring and control system for a small enclosed ter
 
 Early development / hardware bring-up phase (Jan 2026).
 
-See  [`TODO`](Docs/TODO.md) for current progress.
+See  [`TODO`](docs/TODO.md) for current progress.
 
 ---
 

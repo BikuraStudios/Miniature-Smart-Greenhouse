@@ -104,6 +104,7 @@
 
 #define PWM_DUTY_OFF 0									//   0%
 #define PWM_DUTY_LOW ((uint32_t)(PWM_MAX_DUTY * 0.25f)) //  25%
+#define PWM_DUTY_FAN_MIN ((uint32_t)(PWM_MAX_DUTY * 0.40f)) // 40% (Fans won't reliably start below 35%)
 #define PWM_DUTY_MED ((uint32_t)(PWM_MAX_DUTY * 0.75f)) //  75%
 #define PWM_DUTY_HIGH PWM_MAX_DUTY						// 100%
 
@@ -111,7 +112,7 @@
 // = PWM  FREQUENCY =
 // ==================
 // Coil noise may be audible below 20000HZ | Very little gain beyond 30000HZ
-#define PWM_FAN_FREQ_HZ 25000
+#define PWM_FAN_FREQ_HZ 30000
 // Raise if flicker noticeable | Suggested: 300HZ to 20000HZ
 #define PWM_LED_FREQ_HZ 5000
 // Theoretically could be run as low as 10HZ, but 1000 prevents long
@@ -520,7 +521,7 @@ void run_fan(fan_state_t current_fan_state) {
 		pwm_set(LEDC_CHANNEL_1, PWM_DUTY_MED);
 		break;
 	case FAN_LOW:
-		pwm_set(LEDC_CHANNEL_1, PWM_DUTY_LOW);
+		pwm_set(LEDC_CHANNEL_1, PWM_DUTY_FAN_MIN);
 		break;
 	case FAN_OFF:
 		// fall through
@@ -607,13 +608,32 @@ void app_main(void) {
 	};
 	ESP_ERROR_CHECK(
 		adc_oneshot_config_channel(adc_handle, ADC_CHANNEL_0, &chan_cfg));
-
+     // I2C INITIALIZATION ========================================
 	ESP_ERROR_CHECK(i2cdev_init());
-	i2c_dev_t rtc_clock;
-	ds1307_init_desc(&rtc_clock, I2C_PORT, I2C_SDA_GPIO, I2C_SCL_GPIO);
 	sht3x_t sht31_dev = {0};
-	sht3x_init_desc(&sht31_dev, SHT31_ADDR, I2C_PORT, I2C_SDA_GPIO,
-					I2C_SCL_GPIO);
+	sht31_dev.i2c_dev.port = I2C_PORT;
+	sht31_dev.i2c_dev.addr = SHT31_ADDR;
+	sht31_dev.i2c_dev.cfg.sda_io_num = I2C_SDA_GPIO;
+	sht31_dev.i2c_dev.cfg.scl_io_num = I2C_SCL_GPIO;
+	sht31_dev.i2c_dev.cfg.master.clk_speed = 100000;
+	//				I2C_SCL_GPIO);
+	i2c_dev_t rtc_clock = {
+    .port = I2C_PORT,
+    .addr = DS1307_ADDR,
+    .cfg = {
+        .sda_io_num = I2C_SDA_GPIO,
+        .scl_io_num = I2C_SCL_GPIO,
+        .master.clk_speed = 100000
+    }
+};
+ESP_ERROR_CHECK(i2c_dev_create_mutex(&sht31_dev.i2c_dev));
+ESP_ERROR_CHECK(i2c_dev_create_mutex(&rtc_clock));
+ESP_ERROR_CHECK(sht3x_init(&sht31_dev));
+sht31_dev.mode = SHT3X_PERIODIC_1MPS;
+sht31_dev.mode = SHT3X_HIGH;
+
+	//ds1307_init_desc(&rtc_clock, I2C_PORT, I2C_SDA_GPIO, I2C_SCL_GPIO);
+					
 	// ONEWIRE / DS18B20 INITIALIZATION ========================================
 	onewire_addr_t addr;
 	size_t found = 0;
@@ -639,13 +659,15 @@ void app_main(void) {
 	float current_air_temperature_c = 0.0f;
 	struct tm current_time;
 	struct tm new_time;
-
+	
 	//============================================================================
 
+	
 	while (1) {
 		// =======================================================================
-		// SENSOR READS ==========================================================
+		// SENSOR READS 
 		// =======================================================================
+		
 		current_soil_moisture_percent = read_soil_moisture_percent(adc_handle);
 
 		err = ds18b20_measure_and_read(SOIL_TEMP_IN_GPIO, addr,
@@ -672,7 +694,7 @@ void app_main(void) {
 				 current_time.tm_hour, current_time.tm_min,
 				 current_time.tm_sec);
 		// =======================================================================
-		// STATE UPDATE ==========================================================
+		// STATE UPDATE 
 		// =======================================================================
 		current_time_state = update_time_state(current_time);
 		current_fan_state =
@@ -693,7 +715,7 @@ void app_main(void) {
 
 		);
 		// =======================================================================
-		// RUN FUNCTIONS =========================================================
+		// RUN FUNCTIONS 
 		// =======================================================================
 		run_fan(current_fan_state);
 		run_led(current_led_state);
